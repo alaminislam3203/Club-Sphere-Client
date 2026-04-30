@@ -43,7 +43,6 @@ const Admin = () => {
     );
   }
 
-  // চার্ট ডাটা প্রিপারেশন
   const chartData = stats?.membershipsPerClub || [
     { name: t('cat_photo_name', 'Photography'), count: 400 },
     { name: t('cat_tech_name', 'Tech'), count: 300 },

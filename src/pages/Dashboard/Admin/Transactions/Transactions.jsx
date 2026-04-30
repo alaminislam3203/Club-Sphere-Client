@@ -218,7 +218,7 @@ const Transactions = () => {
                           <img
                             src={
                               item?.photoURL ||
-                              'https://i.ibb.co/mJR9nkv/user-placeholder.png'
+                              'https://i.ibb.co.com/wNsV12M3/user.png'
                             }
                             alt="User"
                           />
@@ -253,13 +253,15 @@ const Transactions = () => {
                     <p className="font-bold text-slate-500 text-sm truncate max-w-[180px]">
                       {item?.eventTitle ||
                         item?.clubName ||
-                        t('club_access', 'Club Access')}
+                        t('club_access', 'Membership Access')}
                     </p>
                   </td>
                   <td className="bg-slate-50 py-5 rounded-r-[1.5rem] border-y border-r border-slate-100 group-hover:bg-blue-50/50 transition-colors">
                     <p className="text-xs font-bold text-slate-400">
-                      {item?.createdAt
-                        ? new Date(item.createdAt).toLocaleDateString('en-GB', {
+                      {item?.createdAt || item?.paidAt
+                        ? new Date(
+                            item?.createdAt || item?.paidAt,
+                          ).toLocaleDateString('en-GB', {
                             day: 'numeric',
                             month: 'short',
                             year: 'numeric',
