@@ -21,9 +21,9 @@ const useClubManagerOverview = (managerEmail, role) => {
       return response.data;
     },
     {
-      enabled: !!managerEmail, // Only run if managerEmail is provided
-      staleTime: 5 * 60 * 1000, // cache for 5 minutes
-    }
+      enabled: !!managerEmail,
+      staleTime: 5 * 60 * 1000,
+    },
   );
 
   return { data, isLoading, isError, refetch };
