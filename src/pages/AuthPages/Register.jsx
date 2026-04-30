@@ -113,7 +113,7 @@ const Register = () => {
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#fe3885]/5 rounded-full -ml-16 -mb-16 blur-3xl"></div>
 
         <div className="card-body p-8 md:p-12 relative z-10">
-          {/* Header */}
+          {/* Header  */}
           <div className="flex flex-col items-center mb-8">
             <div className="w-16 h-16 p-3 bg-white rounded-2xl shadow-xl border border-slate-50 mb-4 transition-transform hover:scale-110 duration-300">
               <img

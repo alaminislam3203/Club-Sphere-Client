@@ -13,7 +13,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 
-/* 🔥 Theme initializer (important for dark mode) */
 const ThemeInitializer = ({ children }) => {
   useEffect(() => {
     const theme = localStorage.getItem('theme');
