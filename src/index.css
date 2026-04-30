@@ -1,0 +1,32 @@
+/* 1. Google Font (must be top) */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* 2. Tailwind v4 */
+@import 'tailwindcss';
+
+/* 3. DaisyUI plugin */
+@plugin "daisyui";
+
+/* 4. DaisyUI theme config (IMPORTANT FIX) */
+@plugin "daisyui" {
+  themes:
+    light --default,
+    dark --prefersdark;
+}
+
+/* 5. Custom theme variables */
+@theme {
+  --font-raleway: 'Raleway', sans-serif;
+
+  --color-primary: #0b99ce;
+  --color-secondary: #fe3885;
+  --color-accent: #17161a;
+}
+
+/* 6. Global styles */
+@layer base {
+  body {
+    font-family: var(--font-raleway);
+    @apply transition-colors duration-300;
+  }
+}
