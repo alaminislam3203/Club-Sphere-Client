@@ -7,7 +7,7 @@
 /* 3. DaisyUI plugin */
 @plugin "daisyui";
 
-/* 4. DaisyUI theme config (IMPORTANT FIX) */
+/* 4. DaisyUI theme config 
 @plugin "daisyui" {
   themes:
     light --default,
