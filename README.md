@@ -25,10 +25,13 @@
 
 ### Mobile Device
 
-![Home](https://i.ibb.co.com/whHZy0hD/Homepage-in-mobile-device.png)
-![Footer](https://i.ibb.co.com/G40Z1QQF/Footer-in-mobile-device.png)
-![Dashboard](https://i.ibb.co.com/Xrj5t9rd/Dashboard-in-mobile-device.png)
+<div style="display:flex; gap:10px; flex-wrap:wrap;">
 
+<img src="https://i.ibb.co.com/whHZy0hD/Homepage-in-mobile-device.png" width="150" />
+<img src="https://i.ibb.co.com/G40Z1QQF/Footer-in-mobile-device.png" width="150" />
+<img src="https://i.ibb.co.com/Xrj5t9rd/Dashboard-in-mobile-device.png" width="150" />
+
+</div>
 ### Macbook
 
 ![Home](https://i.ibb.co.com/VYSMS7vX/Macbook-Air-localhost.png)
