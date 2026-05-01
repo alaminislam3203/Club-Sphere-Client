@@ -27,9 +27,9 @@
 
 <div style="display:flex; gap:10px; flex-wrap:wrap;">
 
-<img src="https://i.ibb.co.com/whHZy0hD/Homepage-in-mobile-device.png" width="200" />
-<img src="https://i.ibb.co.com/G40Z1QQF/Footer-in-mobile-device.png" width="200" />
-<img src="https://i.ibb.co.com/Xrj5t9rd/Dashboard-in-mobile-device.png" width="200" />
+<img src="https://i.ibb.co.com/whHZy0hD/Homepage-in-mobile-device.png" width="250" />
+<img src="https://i.ibb.co.com/G40Z1QQF/Footer-in-mobile-device.png" width="250" />
+<img src="https://i.ibb.co.com/Xrj5t9rd/Dashboard-in-mobile-device.png" width="250" />
 
 </div>
 
@@ -44,7 +44,7 @@
 ## 🌟 Project Overview
 
 ClubSphere is a modern full-stack platform to manage clubs, memberships, and
-events.
+events..
 
 - 📸 Photography Clubs
 - 🥾 Hiking Groups
@@ -65,7 +65,7 @@ events.
 
 # 🚀 Tech Stack Overview
 
-> ⚡ Built with a modern, scalable, and high-performance frontend ecosystem.
+> ⚡ Built with a modern, scalable, and high-performance frontend ecosystem..
 
 ---
 
