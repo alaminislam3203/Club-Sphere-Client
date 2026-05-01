@@ -11,7 +11,7 @@
 
 ## 🌐 Live Demo
 
-🔗 **Frontend:** https://your-live-site-link.com
+🔗 **Frontend:** https://club-sphere-web.netlify.app/
 
 ---
 

@@ -8,7 +8,6 @@ import SocialLogin from './SocialLogin';
 import logo from '../../assets/logo/logo2.png';
 import Loading from '../Loading';
 import toast from 'react-hot-toast';
-import useAxiosSecure from '../../hooks/useAxiosSecure';
 import {
   HiOutlineMail,
   HiOutlineLockClosed,
@@ -17,6 +16,7 @@ import {
   HiOutlineEye,
   HiOutlineEyeOff,
 } from 'react-icons/hi';
+import useAxiosSecure from '../../hooks/useAxiosSecure';
 
 const Register = () => {
   const { t } = useTranslation();
@@ -32,7 +32,8 @@ const Register = () => {
     loading,
     setLoading,
   } = useAuth();
-  const axiosSecure = useAxiosSecure();
+
+  const axiosPublic = useAxiosSecure();
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,17 +59,17 @@ const Register = () => {
           .post(image_API_Url, formData)
           .then(res => {
             const photoURL = res.data.data.url;
+
             const userInfo = {
               name: data.name,
               email: data.email,
               photoURL: photoURL,
-              role: 'member',
-              createdAt: new Date(),
             };
 
-            axiosSecure.post('/users', userInfo).then(res => {
+            // ✅ FIX: axiosPublic দিয়ে POST — token ছাড়াই কাজ করবে
+            axiosPublic.post('/users', userInfo).then(res => {
               if (res.data.insertedId) {
-                console.log('User created in DB');
+                console.log('✅ User saved to DB');
               }
             });
 
@@ -79,28 +80,22 @@ const Register = () => {
 
             updateUserProfile(userProfile)
               .then(() => {
-                toast.success(
-                  t('toast_reg_success', 'Registration successful!'),
-                );
+                toast.success(t('toast_reg_success'));
                 navigate(location?.state || '/');
                 setLoading(false);
               })
-              .catch(error => {
-                toast.error(
-                  t('toast_profile_failed', 'Failed to update profile.'),
-                );
+              .catch(() => {
+                toast.error(t('toast_profile_failed'));
                 setLoading(false);
               });
           })
-          .catch(error => {
-            toast.error(t('toast_img_failed', 'Image upload failed.'));
+          .catch(() => {
+            toast.error(t('toast_img_failed'));
             setLoading(false);
           });
       })
       .catch(error => {
-        toast.error(
-          error.message || t('toast_reg_failed', 'Registration failed.'),
-        );
+        toast.error(error.message || t('toast_reg_failed'));
         setLoading(false);
       });
   };
@@ -113,7 +108,7 @@ const Register = () => {
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#fe3885]/5 rounded-full -ml-16 -mb-16 blur-3xl"></div>
 
         <div className="card-body p-8 md:p-12 relative z-10">
-          {/* Header  */}
+          {/* Header */}
           <div className="flex flex-col items-center mb-8">
             <div className="w-16 h-16 p-3 bg-white rounded-2xl shadow-xl border border-slate-50 mb-4 transition-transform hover:scale-110 duration-300">
               <img
@@ -123,10 +118,10 @@ const Register = () => {
               />
             </div>
             <h3 className="text-3xl font-black text-slate-800 tracking-tight text-center">
-              {t('reg_title', 'Create Account')}
+              {t('reg_title')}
             </h3>
             <p className="text-slate-500 font-bold mt-2 uppercase text-[10px] tracking-[0.2em] text-center">
-              {t('reg_subtitle', 'Join the ClubSphere Community')}
+              {t('reg_subtitle')}
             </p>
           </div>
 
@@ -137,7 +132,7 @@ const Register = () => {
             {/* Full Name */}
             <div className="form-control space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
-                {t('label_full_name', 'Full Name')}
+                {t('label_full_name')}
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#0b99ce] transition-colors">
@@ -149,7 +144,7 @@ const Register = () => {
                   className={`w-full pl-12 pr-4 py-4 bg-slate-50 text-slate-800 border-none rounded-2xl font-bold transition-all focus:ring-4 focus:ring-blue-100 focus:bg-white outline-none ${
                     errors.name ? 'ring-2 ring-red-400' : ''
                   }`}
-                  placeholder={t('placeholder_name', 'Enter your full name')}
+                  placeholder={t('placeholder_name')}
                 />
               </div>
             </div>
@@ -157,7 +152,7 @@ const Register = () => {
             {/* Profile Photo */}
             <div className="form-control space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
-                {t('label_profile_photo', 'Profile Photo')}
+                {t('label_profile_photo')}
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#0b99ce] transition-colors">
@@ -174,7 +169,7 @@ const Register = () => {
             {/* Email Address */}
             <div className="form-control space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
-                {t('label_email', 'Email Address')}
+                {t('label_email')}
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#0b99ce] transition-colors">
@@ -186,7 +181,7 @@ const Register = () => {
                   className={`w-full pl-12 pr-4 py-4 bg-slate-50 text-slate-800 border-none rounded-2xl font-bold transition-all focus:ring-4 focus:ring-blue-100 focus:bg-white outline-none ${
                     errors.email ? 'ring-2 ring-red-400' : ''
                   }`}
-                  placeholder={t('placeholder_email', 'Enter your email here')}
+                  placeholder={t('placeholder_email')}
                 />
               </div>
             </div>
@@ -194,7 +189,7 @@ const Register = () => {
             {/* Password */}
             <div className="form-control space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
-                {t('label_password', 'Password')}
+                {t('label_password')}
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#0b99ce] transition-colors">
@@ -211,7 +206,7 @@ const Register = () => {
                   className={`w-full pl-12 pr-12 py-4 bg-slate-50 text-slate-800 border-none rounded-2xl font-bold transition-all focus:ring-4 focus:ring-blue-100 focus:bg-white outline-none ${
                     errors.password ? 'ring-2 ring-red-400' : ''
                   }`}
-                  placeholder={t('placeholder_password', 'Enter your password')}
+                  placeholder={t('placeholder_password')}
                 />
                 <button
                   type="button"
@@ -226,38 +221,36 @@ const Register = () => {
                 </button>
               </div>
 
-              {/* Password Validation Messages */}
-              <div className="mt-1 ml-2">
-                {errors.password?.type === 'pattern' && (
-                  <p className="text-red-400 text-[9px] font-black uppercase tracking-tighter leading-tight italic">
-                    {t(
-                      'error_password_pattern',
-                      'Must include Uppercase, Lowercase, Number & Special Character.',
-                    )}
-                  </p>
-                )}
-              </div>
+              {/* Password Validation Message */}
+              {errors.password?.type === 'pattern' && (
+                <p className="text-red-400 text-[9px] font-black uppercase tracking-tighter leading-tight italic ml-2">
+                  {t('error_password_pattern')}
+                </p>
+              )}
             </div>
 
-            <button className="btn w-full h-14 bg-[#0b99ce] hover:bg-[#fe3885] border-none rounded-[1.2rem] text-white font-black text-lg uppercase tracking-widest shadow-xl shadow-blue-100 transition-all duration-300 active:scale-95 mt-4">
-              {t('btn_create_account', 'Create Account')}
+            <button
+              type="submit"
+              className="btn w-full h-14 bg-[#0b99ce] hover:bg-[#fe3885] border-none rounded-[1.2rem] text-white font-black text-lg uppercase tracking-widest shadow-xl shadow-blue-100 transition-all duration-300 active:scale-95 mt-4"
+            >
+              {t('btn_create_account')}
             </button>
           </form>
 
           <div className="divider text-slate-300 text-[9px] font-black uppercase tracking-[0.3em] my-8">
-            {t('divider_join', 'OR JOIN WITH')}
+            {t('divider_join')}
           </div>
 
           <SocialLogin />
 
           <p className="text-center text-slate-400 font-bold text-xs uppercase tracking-widest mt-10">
-            {t('reg_footer_text', 'Already have an account?')}{' '}
+            {t('reg_footer_text')}{' '}
             <Link
-              to={'/login'}
+              to="/login"
               state={location?.state}
               className="text-[#0b99ce] font-black hover:text-[#fe3885] transition-colors underline underline-offset-4 ml-1"
             >
-              {t('reg_signin_link', 'Sign In')}
+              {t('reg_signin_link')}
             </Link>
           </p>
         </div>

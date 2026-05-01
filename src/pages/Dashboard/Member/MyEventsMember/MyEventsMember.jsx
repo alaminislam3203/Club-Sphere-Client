@@ -20,9 +20,10 @@ const MyEventsMember = () => {
     queryKey: ['member-events', user?.email],
     enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axiosSecure.get(
-        `/event-registrations?userEmail=${user?.email}`,
-      );
+      // ✅ FIX: শুধু নিজের email এর registrations আসবে
+      const res = await axiosSecure.get('/event-registrations', {
+        params: { userEmail: user.email },
+      });
       return res.data;
     },
   });
@@ -35,6 +36,7 @@ const MyEventsMember = () => {
     );
   }
 
+  // ✅ eventTitle আছে এমনগুলোই দেখাবে
   const filteredEvents = myEvents.filter(
     event => event?.eventTitle && event.eventTitle.trim() !== '',
   );
@@ -69,7 +71,10 @@ const MyEventsMember = () => {
 
             <tbody>
               {filteredEvents.map((event, index) => (
-                <tr key={index} className="group transition-all duration-300">
+                <tr
+                  key={event._id || index}
+                  className="group transition-all duration-300"
+                >
                   {/* Event Title */}
                   <td className="bg-slate-50 py-5 rounded-l-[1.5rem] border-y border-l border-slate-100 group-hover:bg-blue-50/50">
                     <div className="flex items-center gap-4">
