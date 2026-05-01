@@ -9,7 +9,6 @@ import { useWindowSize } from 'react-use';
 import { toast } from 'react-hot-toast';
 
 const CONTENT_MAP = {
-  // ✅ Event payment
   event: {
     icon: <CheckCircle className="text-emerald-500 relative z-10" size={56} />,
     iconBg: 'bg-emerald-50',
@@ -27,11 +26,9 @@ const CONTENT_MAP = {
     exploreLinkKey: 'explore_more_events',
     btnColor: 'bg-[#0b99ce] hover:bg-[#fe3885] shadow-blue-200',
     confettiColors: ['#0b99ce', '#fe3885', '#10b981'],
-    // Which API endpoint to call
     apiEndpoint: '/payment-success',
   },
 
-  // ✅ Club membership payment
   'club-membership': {
     icon: <Users className="text-violet-500 relative z-10" size={56} />,
     iconBg: 'bg-violet-50',
@@ -49,11 +46,9 @@ const CONTENT_MAP = {
     exploreLinkKey: 'explore_more_clubs',
     btnColor: 'bg-violet-500 hover:bg-violet-600 shadow-violet-200',
     confettiColors: ['#7c3aed', '#a78bfa', '#c4b5fd'],
-    // Which API endpoint to call
     apiEndpoint: '/club-membership-payment-success',
   },
 
-  // ✅ Plan membership payment
   'plan-membership': {
     icon: <Crown className="text-amber-500 relative z-10" size={56} />,
     iconBg: 'bg-amber-50',
@@ -71,7 +66,6 @@ const CONTENT_MAP = {
     exploreLinkKey: 'view_plan_details',
     btnColor: 'bg-amber-500 hover:bg-amber-600 shadow-amber-200',
     confettiColors: ['#f59e0b', '#fcd34d', '#fde68a'],
-    // Which API endpoint to call
     apiEndpoint: '/payment-success-record',
   },
 };
@@ -84,7 +78,11 @@ const PaymentSuccess = () => {
 
   const rawType = searchParams.get('type');
 
-  const paymentType = CONTENT_MAP[rawType] ? rawType : DEFAULT_TYPE;
+  // ✅ FIXED TYPE HANDLING (IMPORTANT)
+  const VALID_TYPES = ['event', 'club-membership', 'plan-membership'];
+
+  const paymentType = VALID_TYPES.includes(rawType) ? rawType : DEFAULT_TYPE;
+
   const content = CONTENT_MAP[paymentType];
 
   const axiosSecure = useAxiosSecure();
@@ -116,7 +114,6 @@ const PaymentSuccess = () => {
         colors={content.confettiColors}
       />
 
-      {/* Background decoration */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-50 rounded-full blur-[120px] opacity-60 pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-rose-50 rounded-full blur-[120px] opacity-60 pointer-events-none" />
 
@@ -171,7 +168,6 @@ const PaymentSuccess = () => {
           {t(content.messageKey, content.message)}
         </motion.p>
 
-        {/* Session ID */}
         {sessionId && (
           <motion.div
             initial={{ y: 10, opacity: 0 }}
