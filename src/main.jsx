@@ -13,10 +13,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 
+// --- Scroll to Top & Scroll Restoration Logic ---
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
 const ThemeInitializer = ({ children }) => {
   useEffect(() => {
-    const theme = localStorage.getItem('theme');
+    // Refresh dile jeno top-e jay
+    window.scrollTo(0, 0);
 
+    const theme = localStorage.getItem('theme');
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -33,7 +40,6 @@ createRoot(document.getElementById('root')).render(
       <AuthProvider>
         <ThemeInitializer>
           <RouterProvider router={router} />
-
           <Toaster
             position="top-right"
             reverseOrder={false}

@@ -7,7 +7,7 @@ import 'swiper/css/effect-fade';
 import { motion } from 'framer-motion';
 import Container from '../../components/shared/Container';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // i18n হুক ইম্পোর্ট
+import { useTranslation } from 'react-i18next';
 
 // React Icons
 import {
@@ -18,10 +18,8 @@ import {
 } from 'react-icons/fa';
 import { HiSparkles } from 'react-icons/hi';
 
-const brandSecondary = '#fe3885';
-
 const Hero = () => {
-  const { t } = useTranslation(); // t ফাংশন ডিক্লেয়ার
+  const { t } = useTranslation();
 
   const slides = [
     {
@@ -34,14 +32,8 @@ const Hero = () => {
       icon: <FaUserFriends />,
       img: 'https://i.ibb.co.com/fGqXGyNd/image.png',
       path: '/clubs',
-      theme: {
-        colors: {
-          start: '#0ea5e9',
-          end: brandSecondary,
-          shadow: 'shadow-blue-500/30',
-        },
-        layout: 'flex-col-reverse lg:flex-row',
-      },
+      accentColor: '#605dff',
+      layout: 'flex-col-reverse lg:flex-row',
     },
     {
       title: t('hero_slide2_title', 'Create Your Own Club'),
@@ -53,14 +45,8 @@ const Hero = () => {
       icon: <FaPlusCircle />,
       img: 'https://i.ibb.co.com/fWKCyNm/image.png',
       path: '/pricing',
-      theme: {
-        colors: {
-          start: '#0ea5e9',
-          end: brandSecondary,
-          shadow: 'shadow-green-500/30',
-        },
-        layout: 'flex-col-reverse lg:flex-row-reverse',
-      },
+      accentColor: '#10b981',
+      layout: 'flex-col-reverse lg:flex-row-reverse',
     },
     {
       title: t('hero_slide3_title', 'Join Exciting Events'),
@@ -72,113 +58,108 @@ const Hero = () => {
       icon: <FaCalendarAlt />,
       img: 'https://i.ibb.co.com/GQCWYSFG/image.png',
       path: '/events',
-      theme: {
-        colors: {
-          start: '#0ea5e9',
-          end: brandSecondary,
-          shadow: 'shadow-pink-500/30',
-        },
-        layout: 'flex-col-reverse lg:flex-row',
-      },
+      accentColor: '#fe3885',
+      layout: 'flex-col-reverse lg:flex-row',
     },
   ];
 
   return (
-    <section className="relative w-full min-h-[550px] flex items-center bg-white mb-2 overflow-hidden">
-      <div className="absolute top-[-20%] left-[-10%] w-96 h-96 bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-[-20%] right-[-10%] w-96 h-96 bg-[#fe3885]/10 rounded-full blur-[100px] pointer-events-none"></div>
+    <section className="relative w-full min-h-[500px] flex items-center  overflow-hidden ">
+      {/* Background Glows */}
+      <div className="absolute top-0 right-0 w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[40%] h-[40%] bg-secondary/5 blur-[120px] rounded-full pointer-events-none" />
 
       <Container>
         <Swiper
           modules={[Autoplay, Pagination, EffectFade]}
-          effect={'fade'}
+          effect="fade"
           fadeEffect={{ crossFade: true }}
-          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          autoplay={{ delay: 3000, disableOnInteraction: false }}
           pagination={{
             clickable: true,
-            renderBullet: (index, className) => {
-              const colorClass =
-                index === 0
-                  ? 'bg-[#0ea5e9]'
-                  : index === 1
-                    ? 'bg-[#10b981]'
-                    : 'bg-[#fe3885]';
-              return `<span class="${className} !w-3 !h-3 ${colorClass}"></span>`;
-            },
+            bulletClass:
+              'swiper-pagination-bullet !w-2 !h-2 !bg-gray-300 !opacity-100 !transition-all !duration-300',
+            bulletActiveClass: '!w-8 !bg-primary !rounded-full',
           }}
           loop={true}
-          className="w-full h-full py-10"
+          className="w-full"
         >
           {slides.map((slide, index) => (
             <SwiperSlide key={index}>
               <div
-                className={`flex items-center justify-between gap-8 lg:gap-16 w-full h-full ${slide.theme.layout}`}
+                className={`flex items-center justify-between gap-10 lg:gap-20 ${slide.layout}`}
               >
                 {/* Text Content */}
-                <div className="flex-1 text-center lg:text-left z-10 space-y-6">
-                  <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 shadow-sm w-fit mx-auto lg:mx-0"
-                  >
+                <motion.div
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="flex-1 text-center lg:text-left z-10"
+                >
+                  <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full bg-white shadow-sm border border-gray-100">
                     <HiSparkles className="text-yellow-500" />
-                    <span className="text-sm font-bold text-gray-600 uppercase tracking-tighter">
-                      {t('hero_welcome_badge', 'Welcome to ClubSphere')}
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">
+                      {t('hero_welcome_badge', 'Premium Community')}
                     </span>
-                  </motion.div>
+                  </div>
 
-                  <motion.h1
-                    initial={{ y: 30, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight"
-                  >
-                    <span className="text-gray-900 block">
-                      {slide.title.split(' ').slice(0, -1).join(' ')}
-                    </span>
-                    <span className="text-[#0b99ce]">
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 leading-tight mb-6">
+                    {slide.title.split(' ').slice(0, -1).join(' ')}{' '}
+                    <span style={{ color: slide.accentColor }}>
                       {slide.title.split(' ').slice(-1)}
                     </span>
-                  </motion.h1>
+                  </h1>
 
-                  <motion.p
-                    initial={{ y: 30, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    className="text-lg text-gray-500 max-w-xl mx-auto lg:mx-0 font-medium"
-                  >
+                  <p className="text-base text-gray-500 max-w-lg mx-auto lg:mx-0 mb-10 leading-relaxed font-medium">
                     {slide.subtitle}
-                  </motion.p>
+                  </p>
 
-                  <motion.div
-                    initial={{ y: 30, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
+                  <Link
+                    to={slide.path}
+                    className="group inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-primary transition-all duration-300 shadow-xl hover:shadow-primary/30"
                   >
-                    <Link
-                      to={slide.path}
-                      className={`group relative inline-flex items-center justify-center gap-3 px-10 py-5 font-black text-white transition-all duration-300 bg-[#0b99ce] hover:bg-[#fe3885] rounded-2xl shadow-xl ${slide.theme.colors.shadow} active:scale-95 overflow-hidden`}
-                    >
-                      <span className="relative z-10 flex items-center gap-2 uppercase tracking-wider text-sm">
-                        {slide.icon} {slide.buttonText}
-                      </span>
-                      <FaArrowRight className="transition-transform relative z-10 group-hover:translate-x-2" />
-                    </Link>
+                    <span className="text-sm uppercase tracking-wider">
+                      {slide.buttonText}
+                    </span>
+                    <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </motion.div>
+
+                {/* Styled Image Section */}
+                <div className="flex-1 flex justify-center items-center relative">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 1, ease: 'easeOut' }}
+                    className="relative"
+                  >
+                    {/* Decorative Background Frame */}
+                    <div className="absolute -inset-3 rounded-[2.5rem] border-2 border-dashed border-gray-200 animate-[spin_20s_linear_infinite]" />
+
+                    {/* Main Image Container */}
+                    <div className="relative w-[300px] h-[380px] md:w-[350px] md:h-[450px] p-3 bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-transform duration-500 hover:rotate-2">
+                      <img
+                        src={slide.img}
+                        alt={slide.title}
+                        className="w-full h-full object-cover rounded-[1.5rem]"
+                      />
+
+                      {/* Premium Glass Overlay Detail */}
+                      <div
+                        className="absolute top-6 -right-6 w-20 h-20 bg-white/40 backdrop-blur-md rounded-2xl border border-white/50 shadow-lg flex items-center justify-center text-2xl hidden md:flex"
+                        style={{ color: slide.accentColor }}
+                      >
+                        {slide.icon}
+                      </div>
+                    </div>
+
+                    {/* Accent Blob */}
+                    <div
+                      className="absolute -bottom-6 -left-6 w-32 h-32 blur-3xl opacity-20 rounded-full"
+                      style={{ backgroundColor: slide.accentColor }}
+                    />
                   </motion.div>
                 </div>
-
-                {/* Image Section */}
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  whileInView={{ scale: 1, opacity: 1 }}
-                  className="flex-1 relative z-10 w-full max-w-lg lg:max-w-xl"
-                >
-                  <div className="relative rounded-[3rem] overflow-hidden shadow-2xl group border-[12px] border-white">
-                    <img
-                      src={slide.img}
-                      alt={slide.title}
-                      className="w-full h-[350px] sm:h-[450px] object-cover transform group-hover:scale-110 transition-transform duration-1000"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  </div>
-                </motion.div>
               </div>
             </SwiperSlide>
           ))}
@@ -187,4 +168,5 @@ const Hero = () => {
     </section>
   );
 };
+
 export default Hero;

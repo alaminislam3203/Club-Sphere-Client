@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import Container from './Container';
 import useAuth from '../../hooks/useAuth';
-import { useTranslation } from 'react-i18next'; // i18n হুক ইম্পোর্ট করুন
+import { useTranslation } from 'react-i18next';
 
 // React Icons import
 import { MdOutlineDashboard } from 'react-icons/md';
@@ -13,7 +13,7 @@ import { HiMenu } from 'react-icons/hi';
 
 const Navbar = () => {
   const { user, signOutUserFunction, loading } = useAuth();
-  const { t } = useTranslation(); // t ফাংশনটি নেভিগেশন টেক্সট অনুবাদের জন্য
+  const { t } = useTranslation();
 
   const links = (
     <>
@@ -80,7 +80,7 @@ const Navbar = () => {
     <div className="bg-white backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100 transition-all duration-300 z-[99]">
       <Container>
         <nav>
-          <div className="navbar min-h-[70px]">
+          <div className="navbar min-h-[50px]">
             {/* 1. Navbar Start - Logo and Mobile Dropdown */}
             <div className="navbar-start">
               {/* Mobile Dropdown */}
