@@ -943,6 +943,7 @@ i18n.use(initReactI18next).init({
         feat_fast: 'Lightning Fast Networking',
         feat_secure: 'Secure & Verified Profiles',
         feat_global: 'Connect Globally Anytime',
+        access_credentials: 'Enter your credentials to access',
       },
     },
     bn: {
@@ -1854,6 +1855,7 @@ i18n.use(initReactI18next).init({
         feat_fast: 'বিদ্যুৎ গতির নেটওয়ার্কিং',
         feat_secure: 'সুরক্ষিত ও যাচাইকৃত প্রোফাইল',
         feat_global: 'যেকোনো সময় বিশ্বব্যাপী যোগাযোগ',
+        access_credentials: 'অ্যাক্সেস করতে আপনার তথ্য প্রদান করুন',
       },
     },
     zh: {
@@ -2691,6 +2693,7 @@ i18n.use(initReactI18next).init({
         feat_fast: '极速网络连接',
         feat_secure: '安全且经过验证的资料',
         feat_global: '随时随地连接全球',
+        access_credentials: '输入您的凭据以进行访问',
       },
     },
   },
