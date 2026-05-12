@@ -128,7 +128,12 @@ const EventsDetails = () => {
         );
         if (res.data.url) window.location.assign(res.data.url);
       } catch (error) {
-        toast.error(t('payment_init_failed', 'Payment initialization failed!'));
+        toast.error(
+          t(
+            'payment_init_failed',
+            'Payment initialization failed! Already registered for this event! ',
+          ),
+        );
       }
     }
   };

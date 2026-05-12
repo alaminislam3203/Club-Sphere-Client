@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../../../hooks/useAuth';
 import useAxiosSecure from '../../../../hooks/useAxiosSecure';
+import useReceiptDownload from '../../../../hooks/useReceiptDownload';
 import {
   FaHistory,
   FaReceipt,
@@ -11,12 +12,14 @@ import {
   FaDollarSign,
   FaCalendarCheck,
   FaUsers,
+  FaDownload,
 } from 'react-icons/fa';
 
 const PaymentHistory = () => {
   const { user, loading: authLoading } = useAuth();
   const axiosSecure = useAxiosSecure();
   const { t } = useTranslation();
+  const { downloadReceipt } = useReceiptDownload();
 
   const { data: payments = [], isLoading } = useQuery({
     queryKey: ['member-payments', user?.email],
@@ -87,19 +90,22 @@ const PaymentHistory = () => {
                 <th className="bg-transparent">
                   {t('table_col_date', 'Date')}
                 </th>
-                <th className="bg-transparent text-right">
+                <th className="bg-transparent">
                   {t('table_col_status', 'Status')}
+                </th>
+                <th className="bg-transparent text-right">
+                  {t('table_col_receipt', 'Receipt')}
                 </th>
               </tr>
             </thead>
 
             <tbody>
-              {payments.map((payment, index) => (
+              {payments.map(payment => (
                 <tr
                   key={payment._id}
                   className="group transition-all duration-300"
                 >
-                  {/* Transaction Details  */}
+                  {/* Transaction Details */}
                   <td className="bg-slate-50 py-5 rounded-l-[1.5rem] border-y border-l border-slate-100 group-hover:bg-blue-50/50 transition-colors">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 flex items-center justify-center bg-white text-[#0b99ce] rounded-xl shadow-sm border border-slate-100 font-black text-xs">
@@ -129,7 +135,9 @@ const PaymentHistory = () => {
                       <FaDollarSign size={12} className="text-[#fe3885]" />
                       {parseFloat(
                         payment.price || payment.amount || 0,
-                      ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      ).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                      })}
                     </span>
                   </td>
 
@@ -139,12 +147,16 @@ const PaymentHistory = () => {
                       className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shadow-sm bg-white ${
                         payment.paymentType === 'event'
                           ? 'text-purple-600 border-purple-100'
-                          : 'text-[#0b99ce] border-blue-100'
+                          : payment.paymentType === 'plan-membership'
+                            ? 'text-amber-600 border-amber-100'
+                            : 'text-violet-600 border-violet-100'
                       }`}
                     >
                       {payment.paymentType === 'event'
                         ? t('type_event', 'Event Ticket')
-                        : t('type_membership', 'Membership')}
+                        : payment.paymentType === 'plan-membership'
+                          ? t('type_plan_membership', 'Plan Membership')
+                          : t('type_club_membership', 'Club Membership')}
                     </span>
                   </td>
 
@@ -160,8 +172,8 @@ const PaymentHistory = () => {
                   </td>
 
                   {/* Status Badge */}
-                  <td className="bg-slate-50 rounded-r-[1.5rem] border-y border-r border-slate-100 group-hover:bg-blue-50/50 transition-colors text-right">
-                    <div className="flex items-center justify-end gap-2 text-emerald-600 font-black text-[9px] uppercase tracking-widest">
+                  <td className="bg-slate-50 border-y border-slate-100 group-hover:bg-blue-50/50 transition-colors">
+                    <div className="flex items-center gap-2 text-emerald-600 font-black text-[9px] uppercase tracking-widest">
                       <FaCheckCircle className="animate-pulse" />
                       <span className="bg-white px-4 py-2 rounded-xl border border-emerald-100 shadow-sm">
                         {t(
@@ -170,6 +182,17 @@ const PaymentHistory = () => {
                         )}
                       </span>
                     </div>
+                  </td>
+
+                  {/* ✅ Receipt Download Button */}
+                  <td className="bg-slate-50 rounded-r-[1.5rem] border-y border-r border-slate-100 group-hover:bg-blue-50/50 transition-colors text-right pr-4">
+                    <button
+                      onClick={() => downloadReceipt(payment)}
+                      title={t('download_receipt', 'Download Receipt')}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 text-[#0b99ce] hover:bg-[#0b99ce] hover:text-white hover:border-[#0b99ce] hover:shadow-lg hover:shadow-blue-100 active:scale-95 transition-all duration-300 text-[9px] font-black uppercase tracking-widest shadow-sm"
+                    >
+                      <FaDownload size={10} />
+                    </button>
                   </td>
                 </tr>
               ))}

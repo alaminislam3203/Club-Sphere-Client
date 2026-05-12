@@ -7,9 +7,6 @@ import Loading from '../Loading';
 import toast from 'react-hot-toast';
 import { HiOutlineMail, HiOutlineArrowNarrowLeft } from 'react-icons/hi';
 
-import Navbar from '../../components/shared/Navbar';
-import Footer from '../../components/shared/Footer';
-
 const ForgetPassword = () => {
   const { t } = useTranslation();
 
@@ -47,7 +44,6 @@ const ForgetPassword = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Navbar */}
-      <Navbar />
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-4 py-10 font-sans">
@@ -123,9 +119,6 @@ const ForgetPassword = () => {
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };

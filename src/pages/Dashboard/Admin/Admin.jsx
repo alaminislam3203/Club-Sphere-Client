@@ -91,7 +91,7 @@ const Admin = () => {
           </div>
           <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-              {t('stats_memberships', 'Memberships')}
+              {t('stats_memberships', 'Club-Joins')}
             </p>
             <h3 className="text-3xl font-black text-slate-800">
               {stats?.totalMemberships || 0}

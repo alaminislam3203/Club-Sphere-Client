@@ -1,25 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import usePayments from '../../../../hooks/usePayments';
 import useAuth from '../../../../hooks/useAuth';
+import useAxiosSecure from '../../../../hooks/useAxiosSecure';
 import { useTranslation } from 'react-i18next';
+// ✅ নতুন imports add করো
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { FaDownload } from 'react-icons/fa';
 import {
   FaWallet,
   FaExchangeAlt,
   FaSearch,
   FaFilter,
   FaFileInvoiceDollar,
-  FaCheckCircle,
   FaCalendarAlt,
   FaDollarSign,
 } from 'react-icons/fa';
 import { MdOutlineCategory } from 'react-icons/md';
 
+const DEFAULT_AVATAR = 'https://i.ibb.co.com/wNsV12M3/user.png';
+
 const Transactions = () => {
   const { payments = [], isLoading, isError } = usePayments();
   const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
   const { t } = useTranslation();
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // ✅ সব user একবারে fetch করে email → photoURL map বানানো হচ্ছে
+  const { data: users = [] } = useQuery({
+    queryKey: ['all-users-photo-map'],
+    queryFn: async () => {
+      const res = await axiosSecure.get('/users');
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000, // 5 মিনিট cache
+  });
+
+  // ✅ email দিয়ে দ্রুত lookup করার জন্য Map
+  const userPhotoMap = useMemo(() => {
+    const map = {};
+    users.forEach(u => {
+      if (u.email) map[u.email] = u.photoURL || DEFAULT_AVATAR;
+    });
+    return map;
+  }, [users]);
 
   if (isLoading) {
     return (
@@ -71,7 +98,135 @@ const Transactions = () => {
     const search = searchTerm.toLowerCase();
     return matchesFilter && (email.includes(search) || title.includes(search));
   });
+  const handleDownloadPDF = () => {
+    // ✅ A3 size for wider page
+    const doc = new jsPDF({ format: 'a3', unit: 'pt' });
 
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // Background
+    doc.setFillColor(248, 250, 252);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+    // ───────────────── HEADER ─────────────────
+    doc.setFillColor(11, 153, 206);
+    doc.roundedRect(20, 18, pageWidth - 40, 50, 12, 12, 'F');
+
+    // ✅ CLUBSPHERE (NO GAP)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(26);
+
+    // একসাথে লিখলে gap থাকবে না
+    doc.setTextColor(255, 255, 255);
+    doc.text('CLUBSPHERE', 40, 50);
+
+    // Title
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+
+    doc.text('Financial Transactions Report', pageWidth - 40, 50, {
+      align: 'right',
+    });
+
+    // ───────────────── DATE ─────────────────
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139);
+
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 90);
+
+    // ───────────────── PREMIUM STATS ─────────────────
+    const boxW = (pageWidth - 100) / 3;
+
+    // Total Revenue
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(40, 110, boxW, 70, 10, 10, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(100, 116, 139);
+    doc.text('TOTAL REVENUE', 55, 135);
+
+    doc.setFontSize(26);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`$${totalRevenue.toLocaleString()}`, 55, 165);
+
+    // Club Income
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(50 + boxW, 110, boxW, 70, 10, 10, 'F');
+
+    doc.setFontSize(11);
+    doc.setTextColor(100, 116, 139);
+    doc.text('CLUB INCOME', 65 + boxW, 135);
+
+    doc.setFontSize(26);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`$${clubIncome.toLocaleString()}`, 65 + boxW, 165);
+
+    // Event Income
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(60 + boxW * 2, 110, boxW, 70, 10, 10, 'F');
+
+    doc.setFontSize(11);
+    doc.setTextColor(100, 116, 139);
+    doc.text('EVENT INCOME', 75 + boxW * 2, 135);
+
+    doc.setFontSize(26);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`$${eventIncome.toLocaleString()}`, 75 + boxW * 2, 165);
+
+    // ───────────────── TABLE ─────────────────
+    autoTable(doc, {
+      startY: 200,
+
+      head: [['#', 'Email', 'Amount', 'Category', 'Allocation', 'Date']],
+
+      body: filteredPayments.map((item, index) => [
+        index + 1,
+        item?.userEmail || 'N/A',
+        `$${Number(item?.amount || 0).toFixed(2)}`,
+        item?.paymentType || 'General',
+        item?.eventTitle || item?.clubName || 'Membership Access',
+        item?.createdAt || item?.paidAt
+          ? new Date(item?.createdAt || item?.paidAt).toLocaleDateString(
+              'en-GB',
+              {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              },
+            )
+          : 'N/A',
+      ]),
+
+      theme: 'grid',
+    });
+
+    // Footer
+    const finalY = doc.lastAutoTable.finalY + 25;
+
+    doc.setFont('times', 'italic');
+    doc.setFontSize(26);
+    doc.setTextColor(15, 23, 42);
+
+    doc.text('AL-AMIN ISLAM', pageWidth / 2, finalY, {
+      align: 'center',
+    });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(148, 163, 184);
+
+    doc.text(
+      '© ClubSphere — club-sphere-web.netlify.app',
+      pageWidth / 2,
+      finalY + 18,
+      { align: 'center' },
+    );
+
+    doc.save(`all-transactions-report-club-sphere-${Date.now()}.pdf`);
+  };
   return (
     <div className="p-4 md:p-8 bg-slate-50 min-h-screen font-sans">
       {/* --- HEADER --- */}
@@ -173,6 +328,9 @@ const Transactions = () => {
               <option value="event">
                 {t('type_event_short', 'Event Registration')}
               </option>
+              <option value="plan-membership">
+                {t('type_plan_short', 'Plan Membership')}
+              </option>
             </select>
           </div>
         </div>
@@ -203,74 +361,85 @@ const Transactions = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredPayments.map((item, index) => (
-                <tr
-                  key={item?._id || index}
-                  className="group transition-all duration-300"
-                >
-                  <td className="bg-slate-50 py-5 rounded-l-[1.5rem] border-y border-l border-slate-100 font-black text-slate-300">
-                    {String(index + 1).padStart(2, '0')}
-                  </td>
-                  <td className="bg-slate-50 border-y border-slate-100 group-hover:bg-blue-50/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="avatar ring-4 ring-white shadow-md rounded-xl overflow-hidden">
-                        <div className="h-10 w-10">
-                          <img
-                            src={
-                              item?.photoURL ||
-                              'https://i.ibb.co.com/wNsV12M3/user.png'
-                            }
-                            alt="User"
-                          />
+              {filteredPayments.map((item, index) => {
+                const photoURL =
+                  userPhotoMap[item?.userEmail] || DEFAULT_AVATAR;
+
+                return (
+                  <tr
+                    key={item?._id || index}
+                    className="group transition-all duration-300"
+                  >
+                    <td className="bg-slate-50 py-5 rounded-l-[1.5rem] border-y border-l border-slate-100 font-black text-slate-300">
+                      {String(index + 1).padStart(2, '0')}
+                    </td>
+
+                    {/* ✅ Payer Info — users collection থেকে আসা photo */}
+                    <td className="bg-slate-50 border-y border-slate-100 group-hover:bg-blue-50/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="avatar ring-4 ring-white shadow-md rounded-xl overflow-hidden">
+                          <div className="h-10 w-10">
+                            <img
+                              src={photoURL}
+                              alt={item?.userEmail || 'User'}
+                              onError={e => {
+                                e.currentTarget.src = DEFAULT_AVATAR;
+                              }}
+                            />
+                          </div>
                         </div>
+                        <span className="font-bold text-sm text-slate-700">
+                          {item?.userEmail}
+                        </span>
                       </div>
-                      <span className="font-bold text-sm text-slate-700">
-                        {item?.userEmail}
+                    </td>
+
+                    <td className="bg-slate-50 border-y border-slate-100 text-center group-hover:bg-blue-50/50 transition-colors">
+                      <span className="text-lg font-black text-slate-800">
+                        <FaDollarSign className="inline text-xs mb-1" />
+                        {Number(item?.amount || 0).toFixed(2)}
                       </span>
-                    </div>
-                  </td>
-                  <td className="bg-slate-50 border-y border-slate-100 text-center group-hover:bg-blue-50/50 transition-colors">
-                    <span className="text-lg font-black text-slate-800">
-                      <FaDollarSign className="inline text-xs mb-1" />
-                      {Number(item?.amount || 0).toFixed(2)}
-                    </span>
-                  </td>
-                  <td className="bg-slate-50 border-y border-slate-100 text-center group-hover:bg-blue-50/50 transition-colors">
-                    <span
-                      className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm ${
-                        item?.paymentType === 'event'
-                          ? 'bg-white text-purple-600 border border-purple-100'
-                          : 'bg-white text-[#0b99ce] border border-blue-100'
-                      }`}
-                    >
-                      {t(
-                        `type_${item?.paymentType?.replace('-', '_')}`,
-                        item?.paymentType || 'General',
-                      )}
-                    </span>
-                  </td>
-                  <td className="bg-slate-50 border-y border-slate-100 group-hover:bg-blue-50/50 transition-colors">
-                    <p className="font-bold text-slate-500 text-sm truncate max-w-[180px]">
-                      {item?.eventTitle ||
-                        item?.clubName ||
-                        t('club_access', 'Membership Access')}
-                    </p>
-                  </td>
-                  <td className="bg-slate-50 py-5 rounded-r-[1.5rem] border-y border-r border-slate-100 group-hover:bg-blue-50/50 transition-colors">
-                    <p className="text-xs font-bold text-slate-400">
-                      {item?.createdAt || item?.paidAt
-                        ? new Date(
-                            item?.createdAt || item?.paidAt,
-                          ).toLocaleDateString('en-GB', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })
-                        : 'N/A'}
-                    </p>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+
+                    <td className="bg-slate-50 border-y border-slate-100 text-center group-hover:bg-blue-50/50 transition-colors">
+                      <span
+                        className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm ${
+                          item?.paymentType === 'event'
+                            ? 'bg-white text-purple-600 border border-purple-100'
+                            : 'bg-white text-[#0b99ce] border border-blue-100'
+                        }`}
+                      >
+                        {t(
+                          `type_${item?.paymentType?.replace('-', '_')}`,
+                          item?.paymentType || 'General',
+                        )}
+                      </span>
+                    </td>
+
+                    <td className="bg-slate-50 border-y border-slate-100 group-hover:bg-blue-50/50 transition-colors">
+                      <p className="font-bold text-slate-500 text-sm truncate max-w-[180px]">
+                        {item?.eventTitle ||
+                          item?.clubName ||
+                          t('club_access', 'Membership Access')}
+                      </p>
+                    </td>
+
+                    <td className="bg-slate-50 py-5 rounded-r-[1.5rem] border-y border-r border-slate-100 group-hover:bg-blue-50/50 transition-colors">
+                      <p className="text-xs font-bold text-slate-400">
+                        {item?.createdAt || item?.paidAt
+                          ? new Date(
+                              item?.createdAt || item?.paidAt,
+                            ).toLocaleDateString('en-GB', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })
+                          : 'N/A'}
+                      </p>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
 
@@ -285,6 +454,21 @@ const Transactions = () => {
             </div>
           )}
         </div>
+      </div>
+
+      {/* ✅ Admin PDF Download Section */}
+      <div className="mt-10 flex justify-center">
+        <button
+          onClick={handleDownloadPDF}
+          className="group relative overflow-hidden bg-gradient-to-r from-[#0b99ce] to-[#fe3885] hover:scale-[1.03] active:scale-95 transition-all duration-300 text-white px-8 py-4 rounded-[1.8rem] shadow-2xl shadow-blue-500/20 font-black uppercase tracking-[0.18em] text-[11px] flex items-center gap-4"
+        >
+          <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+          <span className="relative z-10 flex items-center gap-3">
+            <FaDownload className="text-lg" />
+            {t('download_financial_report', 'Download Financial Report PDF')}
+          </span>
+        </button>
       </div>
     </div>
   );

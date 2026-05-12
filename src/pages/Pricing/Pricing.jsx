@@ -110,10 +110,11 @@ const Pricing = () => {
       return navigate('/login');
     }
 
-    navigate('/dashboard/payment-page', {
+    navigate('/dashboard/payment-page?from=pricing', {
       state: {
         price: plan.price,
         planName: plan.name,
+        from: 'pricing',
       },
     });
   };

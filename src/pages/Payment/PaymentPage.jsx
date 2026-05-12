@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../hooks/useAuth';
 import useAxiosSecure from '../../hooks/useAxiosSecure';
@@ -14,8 +14,12 @@ import {
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import Loading from '../Loading';
+import toast from 'react-hot-toast';
 
 const PaymentPage = () => {
+  const [searchParams] = useSearchParams();
+  const from = searchParams.get('from');
+
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,7 +29,6 @@ const PaymentPage = () => {
 
   const { price, planName } = location.state || {};
 
-  // --- Validation ---
   if (authLoading) return <Loading />;
 
   if (price === undefined || price === null) {
@@ -40,7 +43,6 @@ const PaymentPage = () => {
 
   const finalCost = parseFloat(price);
 
-  // --- Payment & Database Logic ---
   const handlePaymentInitiation = async () => {
     if (!user?.email) {
       Swal.fire(
@@ -53,37 +55,97 @@ const PaymentPage = () => {
 
     setIsProcessing(true);
 
-    const paymentPayload = {
-      userEmail: user.email,
-      userName: user.displayName,
-      amount: finalCost,
-      planName: planName,
-      paymentType: 'plan-membership',
-      status: 'active',
-      date: new Date(),
-    };
-
     try {
+      // ✅ FREE PLAN — /save-membership এ save করা হবে
       if (finalCost === 0) {
-        await axiosSecure.post('/save-membership', paymentPayload);
+        const freePayload = {
+          userEmail: user.email,
+          userName: user.displayName || '',
+          planName,
+          amount: 0,
+          price: 0,
+          // ✅ server-এ status: 'paid' দিয়ে duplicate check হয়
+          status: 'paid',
+          paymentType: 'plan-membership',
+          // ✅ unique transactionId দিয়ে দিচ্ছি যাতে duplicate record না হয়
+          transactionId: `FREE-PLAN-${user.email}-${planName}-${Date.now()}`,
+          date: new Date(),
+        };
 
-        Swal.fire({
-          title: t('success_title', 'Success!'),
-          text: t('plan_active_msg', { plan: planName }),
-          icon: 'success',
-          confirmButtonColor: '#0b99ce',
-          customClass: { popup: 'rounded-[2rem]' },
-        }).then(() => {
-          navigate('/dashboard');
-        });
-      } else {
-        const res = await axiosSecure.post(
-          '/payment-checkout-session',
-          paymentPayload,
-        );
+        try {
+          await axiosSecure.post('/save-membership', freePayload);
+          Swal.fire({
+            title: t('success_title', 'Success!'),
+            text: t('plan_active_msg', { plan: planName }),
+            icon: 'success',
+            confirmButtonColor: '#0b99ce',
+            customClass: { popup: 'rounded-[2rem]' },
+          }).then(() => {
+            navigate('/dashboard');
+          });
+        } catch (err) {
+          // ✅ 409 = duplicate — already purchased
+          if (err?.response?.status === 409) {
+            Swal.fire({
+              title: t('already_active', 'Already Active'),
+              text: t(
+                'plan_already_purchased',
+                'You already have this plan active.',
+              ),
+              icon: 'info',
+              confirmButtonColor: '#0b99ce',
+              customClass: { popup: 'rounded-[2rem]' },
+            }).then(() => navigate('/dashboard'));
+          } else {
+            toast.error(t('payment_failed', 'Payment processing failed.'));
+          }
+        }
 
-        if (res.data.url) {
+        return;
+      }
+
+      // ✅ PAID PLAN
+
+      const paidPayload = {
+        userEmail: user.email,
+        userName: user.displayName || '',
+        planName,
+        amount: finalCost,
+        price: finalCost,
+        paymentType: 'plan-membership',
+        date: new Date(),
+      };
+
+      const endpoint =
+        from === 'pricing' ? '/payment-checkout' : '/payment-checkout-session';
+
+      try {
+        const res = await axiosSecure.post(endpoint, paidPayload);
+
+        if (res.data?.url) {
           window.location.replace(res.data.url);
+        } else {
+          toast.error(t('payment_failed', 'Payment processing failed.'));
+        }
+      } catch (err) {
+        // ✅ 409 = duplicate payment already exists
+        if (err?.response?.status === 409) {
+          Swal.fire({
+            title: t('already_active', 'Already Active'),
+            text:
+              err?.response?.data?.message ||
+              t('plan_already_purchased', 'You already have this plan active.'),
+            icon: 'info',
+            confirmButtonColor: '#0b99ce',
+            customClass: { popup: 'rounded-[2rem]' },
+          }).then(() => navigate('/dashboard'));
+        } else {
+          toast.error(
+            t(
+              'payment_failed',
+              'Payment processing failed.You already have this plan active',
+            ),
+          );
         }
       }
     } catch (error) {

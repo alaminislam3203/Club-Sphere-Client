@@ -6,6 +6,7 @@ const savedLanguage = localStorage.getItem('i18nextLng') || 'en';
 i18n.use(initReactI18next).init({
   resources: {
     en: {
+      download_financial_report: 'Download Financial Report PDF',
       alert_deleted: 'Deleted!',
       alert_club_delete_success: 'The club has been removed.',
       delete_confirm_title: 'Are you sure?',
@@ -388,7 +389,7 @@ i18n.use(initReactI18next).init({
         admin_insights_subtitle:
           'Real-time overview of your community ecosystem.',
         stats_total_users: 'Total Users',
-        stats_memberships: 'Memberships',
+        stats_memberships: 'Club-Joins',
         stats_total_events: 'Total Events',
         stats_revenue: 'Revenue',
         chart_club_status: 'Club Status',
@@ -455,6 +456,7 @@ i18n.use(initReactI18next).init({
         label_event_earnings: 'Event Earnings',
         search_placeholder_finance: 'Search email or title...',
         type_club_short: 'Club Membership',
+        type_plan_short: 'Plan Membership',
         type_event_short: 'Event Registration',
         table_col_payer: 'Payer Info',
         table_col_allocation: 'Allocation',
@@ -704,7 +706,9 @@ i18n.use(initReactI18next).init({
         join_with_fee_title: 'Join with Fee',
         proceed_payment_msg: 'Proceed to pay ${{fee}}?',
         proceed_btn: 'Proceed to Payment',
-        payment_failed_msg: 'Payment failed.',
+        payment_failed:
+          'Payment processing failed.You already have this plan active',
+        payment_failed_msg: 'Payment failed. Already Joined this club.!',
         login_first_msg: 'Please login first',
         // Events Details Page
         elevating_experience: 'Elevating experiences...',
@@ -730,7 +734,8 @@ i18n.use(initReactI18next).init({
         reg_success_title: 'Registration Successful!',
         reg_free_success_msg: 'You have secured your FREE entry for {{title}}.',
         already_registered: 'Already registered for this event!',
-        payment_init_failed: 'Payment initialization failed!',
+        payment_init_failed:
+          'Payment initialization failed! Already registered for this event!',
         // Payment Page
         activate_plan_title: 'Activate Plan',
         checkout_pay_title: 'Checkout Payment',
@@ -765,6 +770,7 @@ i18n.use(initReactI18next).init({
 
         receipt_sent_msg:
           'A receipt has been sent to your registered email address.',
+        table_col_receipt: 'Receipt',
 
         secure_payment_badge: 'Verified Secure Transaction',
 
@@ -944,10 +950,13 @@ i18n.use(initReactI18next).init({
         feat_secure: 'Secure & Verified Profiles',
         feat_global: 'Connect Globally Anytime',
         access_credentials: 'Enter your credentials to access',
+        total_payments: 'Total Payments',
       },
     },
     bn: {
       translation: {
+        download_financial_report: 'আর্থিক রিপোর্ট ডাউনলোড করুন',
+        total_payments: 'মোট পেমেন্ট',
         theme_select_label: 'থিম মোড',
         theme_note: 'আপনার থিম পছন্দ স্বয়ংক্রিয়ভাবে সংরক্ষণ করা হবে।',
         club_management: 'ক্লাব ম্যানেজমেন্ট',
@@ -1093,6 +1102,7 @@ i18n.use(initReactI18next).init({
         back_home_btn: 'হোমপেজে ফিরে যান',
         receipt_sent_msg:
           'আপনার নিবন্ধিত ইমেল ঠিকানায় একটি রসিদ পাঠানো হয়েছে।',
+        table_col_receipt: 'রসিদ',
 
         // Payment Cancelled Page
         payment_cancel_title: 'পেমেন্ট বাতিল হয়েছে',
@@ -1173,7 +1183,8 @@ i18n.use(initReactI18next).init({
         reg_free_success_msg:
           'আপনি "{{title}}" এর জন্য আপনার ফ্রি এন্ট্রি নিশ্চিত করেছেন।',
         already_registered: 'আপনি ইতিমধ্যে এই ইভেন্টে নিবন্ধন করেছেন!',
-        payment_init_failed: 'পেমেন্ট শুরু করতে ব্যর্থ হয়েছে!',
+        payment_init_failed:
+          'পেমেন্ট শুরু করতে ব্যর্থ হয়েছে! ইতিমধ্যে এই ইভেন্টে নিবন্ধন করেছেন!',
         // Club Details Page
         loading_essence: 'ক্লাবের তথ্য লোড হচ্ছে...',
         club_not_found: 'ক্লাবটি পাওয়া যায়নি',
@@ -1200,7 +1211,10 @@ i18n.use(initReactI18next).init({
         join_with_fee_title: 'ফি সহ যোগদান',
         proceed_payment_msg: 'আপনি কি ${{fee}} প্রদান করে এগিয়ে যেতে চান?',
         proceed_btn: 'পেমেন্ট এগিয়ে যান',
-        payment_failed_msg: 'পেমেন্ট ব্যর্থ হয়েছে।',
+        payment_failed:
+          'পেমেন্ট প্রক্রিয়া করতে ব্যর্থ হয়েছে। আপনার ইতিমধ্যে এই প্ল্যান সক্রিয় আছে',
+        payment_failed_msg:
+          'পেমেন্ট ব্যর্থ হয়েছে। আপনি ইতিমধ্যে এই ক্লাবে যোগ দিয়েছেন!',
         login_first_msg: 'দয়া করে আগে লগইন করুন',
         // Contact Page
         contact_badge: 'যোগাযোগ করুন',
@@ -1404,6 +1418,7 @@ i18n.use(initReactI18next).init({
         label_event_earnings: 'ইভেন্ট আয়',
         search_placeholder_finance: 'ইমেল বা শিরোনাম দিয়ে খুঁজুন...',
         type_club_short: 'ক্লাব মেম্বারশিপ',
+        type_plan_short: 'প্ল্যান মেম্বারশিপ',
         type_event_short: 'ইভেন্ট রেজিস্ট্রেশন',
         table_col_payer: 'প্রদানকারীর তথ্য',
         table_col_allocation: 'বরাদ্দ',
@@ -1470,7 +1485,7 @@ i18n.use(initReactI18next).init({
         admin_insights_subtitle:
           'আপনার কমিউনিটি ইকোসিস্টেমের রিয়েল-টাইম ওভারভিউ।',
         stats_total_users: 'মোট ব্যবহারকারী',
-        stats_memberships: 'মেম্বারশিপসমূহ',
+        stats_memberships: 'মোট সদস্যপদ',
         stats_total_events: 'মোট ইভেন্ট',
         stats_revenue: 'মোট আয়',
         chart_club_status: 'ক্লাব স্ট্যাটাস',
@@ -1719,9 +1734,7 @@ i18n.use(initReactI18next).init({
         btn_get_started: 'ফ্রিতে শুরু করুন',
         btn_subscribe: 'সাবস্ক্রাইব করুন',
         btn_premium: 'প্রিমিয়াম নিন',
-        plan_starter_name: 'স্টার্টার',
-        plan_pro_name: 'প্রো মেম্বার',
-        plan_manager_name: 'ক্লাব ম্যানেজার',
+
         plan_period_forever: '/আজীবন',
         plan_period_month: '/মাস',
 
@@ -1860,6 +1873,8 @@ i18n.use(initReactI18next).init({
     },
     zh: {
       translation: {
+        download_financial_report: '下载财务报告',
+        total_payments: '总支付金额',
         club_management: '俱乐部管理',
         total_clubs: '俱乐部总数',
         club_info: '俱乐部信息',
@@ -1964,9 +1979,7 @@ i18n.use(initReactI18next).init({
         btn_get_started: '免费开始',
         btn_subscribe: '立即订阅',
         btn_premium: '获取高级版',
-        plan_starter_name: '入门版',
-        plan_pro_name: '专业会员',
-        plan_manager_name: '俱乐部管理员',
+
         plan_period_forever: '/永久',
         plan_period_month: '/每月',
 
@@ -2237,7 +2250,7 @@ i18n.use(initReactI18next).init({
         admin_insights_title: '管理员洞察',
         admin_insights_subtitle: '您的社区生态系统实时概览。',
         stats_total_users: '总用户数',
-        stats_memberships: '会员数',
+        stats_memberships: '总会员数',
         stats_total_events: '总活动数',
         stats_revenue: '总收入',
         chart_club_status: '俱乐部状态',
@@ -2304,6 +2317,7 @@ i18n.use(initReactI18next).init({
         label_event_earnings: '活动收益',
         search_placeholder_finance: '按邮箱或标题搜索...',
         type_club_short: '俱乐部会员',
+        type_plan_short: '计划会员',
         type_event_short: '活动注册',
         table_col_payer: '付款人信息',
         table_col_allocation: '分配',
@@ -2500,7 +2514,8 @@ i18n.use(initReactI18next).init({
         join_with_fee_title: '付费加入',
         proceed_payment_msg: '继续支付 ${{fee}}？',
         proceed_btn: '前往付款',
-        payment_failed_msg: '付款失败。',
+        payment_failed: '支付失败。您已激活此方案。',
+        payment_failed_msg: '支付失败。您已经加入了该俱乐部！',
         login_first_msg: '请先登录',
 
         // Events Details Page
@@ -2525,7 +2540,7 @@ i18n.use(initReactI18next).init({
         reg_success_title: '注册成功！',
         reg_free_success_msg: '您已确保 {{title}} 的免费入场资格。',
         already_registered: '已注册此活动！',
-        payment_init_failed: '初始化付款失败！',
+        payment_init_failed: '支付初始化失败！您已经报名参加了此活动。 ',
 
         // Payment Page
         activate_plan_title: '激活方案',
@@ -2556,6 +2571,7 @@ i18n.use(initReactI18next).init({
         go_dashboard_btn: '前往仪表板',
         back_home_btn: '返回首页',
         receipt_sent_msg: '收据已发送至您的注册邮箱。',
+        table_col_receipt: '查看收据',
 
         // Payment Cancelled Page
         payment_cancel_title: '付款已取消',
