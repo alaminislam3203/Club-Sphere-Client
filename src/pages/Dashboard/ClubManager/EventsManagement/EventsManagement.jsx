@@ -78,7 +78,7 @@ const EventsManagement = () => {
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
-      confirmButtonText: t('btn_delete_confirm', 'Yes, delete it!'),
+      confirmButtonText: t('btn_yes_delete', 'Yes, delete it!'),
     }).then(result => {
       if (result.isConfirmed) deleteMutation.mutate(id);
     });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   FaMapMarkerAlt,
   FaRegMoneyBillAlt,
@@ -29,6 +30,7 @@ const ClubsDetails = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const club = clubs.find(c => c._id === id);
 
@@ -75,6 +77,7 @@ const ClubsDetails = () => {
     }
 
     if (isFree) {
+      // ─── FREE CLUB JOIN ──────────────────────────────────
       Swal.fire({
         title: t('join_club_q', 'Join this Club?'),
         text: t('join_free_msg', { name: club.clubName }),
@@ -84,65 +87,54 @@ const ClubsDetails = () => {
         confirmButtonText: t('join_now_btn', 'Yes, Join Now!'),
         customClass: { popup: 'rounded-[2rem]' },
       }).then(async result => {
-        if (result.isConfirmed) {
-          const localDateTime = new Date().toLocaleString();
-          const requestData = {
-            clubId: club._id,
-            clubName: club.clubName,
-            userEmail: user.email,
-            userName: user.displayName,
-            userImage: user.photoURL,
-            managerEmail: club.managerEmail,
-            category: club.category,
-            location: club.location,
-            bannerImage: club.bannerImage,
-            status: 'pending',
-            joinedAt: localDateTime,
-          };
+        if (!result.isConfirmed) return;
 
-          try {
-            const res = await axiosSecure.post(
-              '/club-join-request',
-              requestData,
-            );
-            if (res.data.insertedId || res.data.message === 'already-exists') {
-              if (res.data.insertedId) {
-                const freePaymentInfo = {
-                  userEmail: user.email,
-                  amount: 0,
-                  clubId: club._id,
-                  clubName: club.clubName,
-                  transactionId: `FREE-${Date.now()}`,
-                  paymentType: 'club-membership',
-                  status: 'paid',
-                  createdAt: localDateTime,
-                };
-                await axiosSecure.post(
-                  '/payments-manual-record',
-                  freePaymentInfo,
-                );
-                Swal.fire(
-                  t('success_title', 'Success!'),
-                  t(
-                    'join_success_msg',
-                    'Joined successfully! Your request is pending.',
-                  ),
-                  'success',
-                );
-              } else {
-                Swal.fire(
-                  t('notice_title', 'Notice'),
-                  t('already_member_msg', 'Already a member or request sent.'),
-                  'info',
-                );
-              }
-            }
-          } catch (error) {
+        // ✅ /payment-club-membership-free ব্যবহার করছি
+        // এই route-এই membership save + payment record save + membersCount +1 হয়
+        const requestData = {
+          clubId: club._id,
+          clubName: club.clubName,
+          userEmail: user.email,
+          userName: user.displayName,
+          userImage: user.photoURL,
+          managerEmail: club.managerEmail,
+          category: club.category,
+          location: club.location,
+          bannerImage: club.bannerImage,
+        };
+
+        try {
+          await axiosSecure.post('/payment-club-membership-free', requestData);
+
+          // ✅ clubs cache invalidate — page-এ membersCount সাথে সাথে update হবে
+          await queryClient.invalidateQueries({ queryKey: ['clubs'] });
+
+          Swal.fire({
+            title: t('success_title', 'Success!'),
+            text: t('join_success_msg', 'Joined successfully!'),
+            icon: 'success',
+            confirmButtonColor: '#0b99ce',
+            customClass: { popup: 'rounded-[2rem]' },
+          });
+        } catch (error) {
+          // ✅ 409 = already a member
+          if (error?.response?.status === 409) {
+            Swal.fire({
+              title: t('notice_title', 'Notice'),
+              text:
+                error?.response?.data?.message ||
+                t('already_member_msg', 'Already a member or request sent.'),
+              icon: 'info',
+              confirmButtonColor: '#0b99ce',
+              customClass: { popup: 'rounded-[2rem]' },
+            });
+          } else {
             toast.error(t('join_failed_msg', 'Failed to join club.'));
           }
         }
       });
     } else {
+      // ─── PAID CLUB JOIN ───────────────────────────────────
       const paymentInfo = {
         userEmail: user.email,
         userName: user.displayName,
@@ -166,14 +158,32 @@ const ClubsDetails = () => {
         confirmButtonText: t('proceed_btn', 'Proceed to Payment'),
         customClass: { popup: 'rounded-[2rem]' },
       }).then(async result => {
-        if (result.isConfirmed) {
-          try {
-            const res = await axiosSecure.post(
-              '/payment-club-membership',
-              paymentInfo,
-            );
-            if (res.data.url) window.location.assign(res.data.url);
-          } catch (error) {
+        if (!result.isConfirmed) return;
+
+        try {
+          const res = await axiosSecure.post(
+            '/payment-club-membership',
+            paymentInfo,
+          );
+          if (res.data?.url) {
+            window.location.assign(res.data.url);
+          }
+        } catch (error) {
+          // ✅ 409 = already a member or payment already exists
+          if (error?.response?.status === 409) {
+            Swal.fire({
+              title: t('notice_title', 'Notice'),
+              text:
+                error?.response?.data?.message ||
+                t(
+                  'already_member_msg',
+                  'Already a member or payment processed.',
+                ),
+              icon: 'info',
+              confirmButtonColor: '#0b99ce',
+              customClass: { popup: 'rounded-[2rem]' },
+            });
+          } else {
             toast.error(t('payment_failed_msg', 'Payment failed.'));
           }
         }
@@ -204,8 +214,9 @@ const ClubsDetails = () => {
                 {club.clubName}
               </h1>
               <div className="flex flex-wrap gap-4 text-white/90">
+                {/* ✅ club cache invalidate হওয়ার পর এটা auto-update হবে */}
                 <span className="bg-black/20 backdrop-blur-sm px-4 py-2 rounded-xl flex items-center gap-3 text-xs font-bold border border-white/5">
-                  <MdAccessTime size={18} className="text-[#fe3885] " />{' '}
+                  <MdAccessTime size={18} className="text-[#fe3885]" />{' '}
                   {club.membersCount || 0} {t('members_label', 'Members')}
                 </span>
                 <span className="bg-black/20 backdrop-blur-sm px-4 py-2 rounded-xl flex items-center gap-3 text-xs font-bold border border-white/5">
